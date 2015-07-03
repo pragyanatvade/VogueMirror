@@ -4,6 +4,7 @@ Demo of the project is shown at https://www.youtube.com/watch?v=w4Rc0apddmo.
 
 # Under The Hood
 As per the directory structure:
+
 VogueMirror
 |
 +-- vm_deps: List of open source dependencies.

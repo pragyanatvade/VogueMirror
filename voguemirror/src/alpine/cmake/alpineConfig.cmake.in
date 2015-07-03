@@ -1,0 +1,113 @@
+# generated from alpine/cmake/alpineConfig.cmake.in
+# which overlays the default template alpine/cmake/template/pkgConfig.cmake.in
+#
+# :outvar alpine_INCLUDE_DIRS: contains the include dirs of all searched components.
+#    For use with CMake ``include_directories(${alpine_INCLUDE_DIRS})``.
+# :outvar alpine_LIBRARY_DIRS: contains the library dirs of all searched components.
+#    For use with CMake ``link_directories(${alpine_INCLUDE_DIRS})``.
+# :outvar alpine_LIBRARIES: contains the include dirs of all searched components.
+#    For use with CMake ``include_directories(${alpine_INCLUDE_DIRS})``.
+# :outvar <comp>_INCLUDE_DIRS/_LIBRARY_DIRS/_LIBRARY:
+#    contains the include dirs / library dirs / libraries of the searched component <comp>.
+
+if(ALPINE_TOPLEVEL_FIND_PROJECT OR NOT ALPINE_TOPLEVEL)
+    set(alpine_EXTRAS_DIR "@PKG_CMAKE_DIR@")
+
+    # prevent multiple inclusion from repeated find_package() calls in non-workspace context
+    # as long as this variable is in the scope the variables from all.cmake are also, so no need to be evaluated again
+    if(NOT DEFINED _ALPINE_CONFIG_ALL_INCLUDED_)
+        set(_ALPINE_CONFIG_ALL_INCLUDED_ TRUE)
+        include(${alpine_EXTRAS_DIR}/all.cmake NO_POLICY_SCOPE)
+    endif()
+endif()
+
+# skip setting find_package() variables when discovered from toplevel.cmake
+if(ALPINE_TOPLEVEL_FIND_PROJECT)
+    return()
+endif()
+
+
+# prevent usage with wrong case
+if(ALPINE_FIND_COMPONENTS OR ALPINE_FIND_REQUIRED OR ALPINE_FIND_QUIETLY)
+    message(FATAL_ERROR "find_package() only supports lower-case package name 'alpine'")
+endif()
+
+# mark as found
+if(NOT alpine_FOUND)
+    set(alpine_FOUND)
+    set(ALPINE_PROJECT_PREFIX "" CACHE STRING "Prefix to apply to package generated via gendebian")
+endif()
+
+# flag project as alpine-based to distinguish if a find_package()-ed project is a alpine project
+set(alpine_FOUND_ALPINE_PROJECT TRUE)
+
+# XXXX don't overwrite alpine_* variables when being called recursively
+if(NOT _ALPINE_FIND_ OR _ALPINE_FIND_ EQUAL 0)
+    set(_ALPINE_FIND_ 0)
+    set(alpine_INCLUDE_DIRS "")
+    set(alpine_LIBRARIES "")
+    set(alpine_LIBRARY_DIRS "")
+    set(alpine_EXPORTED_TARGETS "")
+endif()
+
+# increment recursion counter
+math(EXPR _ALPINE_FIND_ "${_ALPINE_FIND_} + 1")
+
+# find all components
+foreach(component ${alpine_FIND_COMPONENTS})
+    string(TOLOWER "${component}" component_lower)
+    # skip alpine since it does not make sense as a component
+    if(NOT ${component_lower} STREQUAL "alpine")
+
+    # get search paths from CMAKE_PREFIX_PATH (which includes devel space)
+    set(paths "")
+    foreach(path ${CMAKE_PREFIX_PATH})
+        if(IS_DIRECTORY ${path}/share/${component}/cmake)
+            list(APPEND paths ${path}/share/${component}/cmake)
+        endif()
+    endforeach()
+
+    # find package component
+    if(alpine_FIND_REQUIRED)
+        find_package(${component} REQUIRED NO_MODULE PATHS ${paths}
+            NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
+    elseif(alpine_FIND_QUIETLY)
+        find_package(${component} QUIET NO_MODULE PATHS ${paths}
+            NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
+    else()
+        find_package(${component} NO_MODULE PATHS ${paths}
+            NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
+    endif()
+
+    # append component-specific variables to alpine_* variables
+    list_append_unique(alpine_INCLUDE_DIRS ${${component}_INCLUDE_DIRS})
+
+    # merge build configuration keywords with library names to correctly deduplicate
+    alpine_pack_libraries_with_build_configuration(alpine_LIBRARIES ${alpine_LIBRARIES})
+    alpine_pack_libraries_with_build_configuration(_libraries ${${component}_LIBRARIES})
+    list_append_deduplicate(alpine_LIBRARIES ${_libraries})
+    # undo build configuration keyword merging after deduplication
+    alpine_unpack_libraries_with_build_configuration(alpine_LIBRARIES ${alpine_LIBRARIES})
+
+    list_append_unique(alpine_LIBRARY_DIRS ${${component}_LIBRARY_DIRS})
+    list(APPEND alpine_EXPORTED_TARGETS ${${component}_EXPORTED_TARGETS})
+  endif()
+endforeach()
+list_insert_in_workspace_order(alpine_INCLUDE_DIRS ${alpine_INCLUDE_DIRS})
+list_insert_in_workspace_order(alpine_LIBRARY_DIRS ${alpine_LIBRARY_DIRS})
+
+# add dummy target to alpine_EXPORTED_TARGETS if empty
+if(NOT alpine_EXPORTED_TARGETS)
+    if(NOT TARGET _alpine_empty_exported_target)
+        add_custom_target(_alpine_empty_exported_target)
+    endif()
+    list(APPEND alpine_EXPORTED_TARGETS _alpine_empty_exported_target)
+endif()
+
+# decrement recursion counter
+math(EXPR _ALPINE_FIND_ "${_ALPINE_FIND_} - 1")
+
+if(_ALPINE_FIND_ EQUAL 0)
+    # store found components (from the fist level only) for validation in alpine_project() that they are build dependencies
+    list(APPEND alpine_ALL_FOUND_COMPONENTS ${alpine_FIND_COMPONENTS})
+endif()

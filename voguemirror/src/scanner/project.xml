@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<project>
+  <name>scanner</name>
+  <version>0.0.1</version>
+  <description>Library facilitates scanning of objects and create annotated 3D models</description>
+  <maintainer email="pragyan@voguemirror.com">Pragyan</maintainer>
+  <license>VogueMirror Proprietary</license>
+
+  <url type="website">https://github.com/pntripathi9417/voguemirror/wiki/vm_model</url>
+  <url type="repository">https://github.com/pntripathi9417/voguemirror/tree/master/src/vm_model</url>
+
+  <author>Pragyan</author>
+
+  <buildtooldep>alpine</buildtooldep>
+
+  <builddep>cmake_modules</builddep>
+
+  <builddep>libopenni-dev</builddep>
+  <builddep>libopencv-dev</builddep>
+  <builddep>cuda</builddep>
+  
+  <rundep>libopenni-dev</rundep>
+  <rundep>libopencv-dev</rundep>
+  <rundep>cuda</rundep>
+</project>

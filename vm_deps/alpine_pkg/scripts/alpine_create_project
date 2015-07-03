@@ -1,0 +1,71 @@
+#!/usr/bin/env python
+
+"""This script creates the skeletton of a alpine project"""
+
+from __future__ import print_function
+import argparse
+import os
+import sys
+
+from alpine_pkg.project_templates import create_project_files, ProjectTemplate
+
+
+def main(argv=sys.argv[1:], parent_path=os.getcwd()):
+    parser = argparse.ArgumentParser(
+        description='Creates a new alpine project')
+    parser.add_argument('name',
+                        nargs=1,
+                        help='The name for the project')
+    parser.add_argument('dependencies',
+                        nargs='*',
+                        help='Alpine project Dependencies')
+    parser.add_argument('-s', '--sys-deps',
+                        nargs='*',
+                        help='System Dependencies')
+    parser.add_argument('-b', '--boost-comps',
+                        nargs='*',
+                        help='Boost Components')
+    parser.add_argument('-V', '--pkg_version',
+                        action='store',
+                        help='Initial Project version')
+    parser.add_argument('-D', '--description',
+                        action='store',
+                        help='Description')
+    parser.add_argument('-l', '--license',
+                        action='append',
+                        help='Name of License')
+    parser.add_argument('-a', '--author',
+                        action='append',
+                        help='A single author, may be used multiple times')
+    parser.add_argument('-m', '--maintainer',
+                        action='append',
+                        help='A single maintainer, may be used multiple times')
+    distro_name = os.environ['DISTRO'] if 'DISTRO' in os.environ else None
+    parser.add_argument('--distro', required=distro_name is None, default=distro_name, help='The distro (default: environment variable DISTRO if defined)')
+
+    args = parser.parse_args(argv)
+
+    try:
+        project_name = args.name[0]
+        target_path = os.path.join(parent_path, project_name)
+        project_template = ProjectTemplate._create_project_template(
+            project_name=project_name,
+            description=args.description,
+            licenses=args.license or [],
+            maintainer_names=args.maintainer,
+            author_names=args.author,
+            version=args.pkg_version,
+            alpine_deps=args.dependencies,
+            system_deps=args.sys_deps,
+            boost_comps=args.boost_comps)
+        create_project_files(target_path=target_path,
+                             project_template=project_template,
+                             distro=args.distro,
+                             newfiles={})
+        print('Successfully created files in %s. Please adjust the values in project.xml.' % target_path)
+    except ValueError as vae:
+        parser.error(str(vae))
+
+
+if __name__ == '__main__':
+    main()

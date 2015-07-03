@@ -1,0 +1,59 @@
+#
+# Set several path suffixes for install destinations.
+#
+# :outvar ALPINE_PROJECT_BIN_DESTINATION:
+#   See :cmake:data:`ALPINE_PROJECT_BIN_DESTINATION`.
+# :outvar ALPINE_PROJECT_ETC_DESTINATION:
+#   See :cmake:data:`ALPINE_PROJECT_ETC_DESTINATION`.
+# :outvar ALPINE_PROJECT_INCLUDE_DESTINATION:
+#   See :cmake:data:`ALPINE_PROJECT_INCLUDE_DESTINATION`.
+# :outvar ALPINE_PROJECT_LIB_DESTINATION:
+#   See :cmake:data:`ALPINE_PROJECT_LIB_DESTINATION`.
+# :outvar ALPINE_PROJECT_PYTHON_DESTINATION:
+#   See :cmake:data:`ALPINE_PROJECT_PYTHON_DESTINATION`.
+# :outvar ALPINE_PROJECT_SHARE_DESTINATION:
+#   See :cmake:data:`ALPINE_PROJECT_SHARE_DESTINATION`.
+#
+# :outvar ALPINE_GLOBAL_BIN_DESTINATION:
+#   See :cmake:data:`ALPINE_GLOBAL_BIN_DESTINATION`.
+# :outvar ALPINE_GLOBAL_ETC_DESTINATION:
+#   See :cmake:data:`ALPINE_GLOBAL_ETC_DESTINATION`.
+# :outvar ALPINE_GLOBAL_INCLUDE_DESTINATION:
+#   See :cmake:data:`ALPINE_GLOBAL_INCLUDE_DESTINATION`.
+# :outvar ALPINE_GLOBAL_LIB_DESTINATION:
+#   See :cmake:data:`ALPINE_GLOBAL_LIB_DESTINATION`.
+# :outvar ALPINE_GLOBAL_LIBEXEC_DESTINATION:
+#   See :cmake:data:`ALPINE_GLOBAL_LIBEXEC_DESTINATION`.
+# :outvar ALPINE_GLOBAL_PYTHON_DESTINATION:
+#   See :cmake:data:`ALPINE_GLOBAL_PYTHON_DESTINATION`.
+# :outvar ALPINE_GLOBAL_SHARE_DESTINATION:
+#   See :cmake:data:`ALPINE_GLOBAL_SHARE_DESTINATION`.
+#
+macro(alpine_destinations)
+  # verify that project() has been called before
+  if(NOT PROJECT_NAME)
+    message(FATAL_ERROR "alpine_destinations() PROJECT_NAME is not set. You must call project() before you can call alpine_destinations().")
+  endif()
+
+  # execute alpine_destinations() only once, skip repeated invocations
+  if(NOT DEFINED _${PROJECT_NAME}_ALPINE_DESTINATIONS)
+    debug_message(10 "alpine_destinations()")
+
+    # mark that alpine_destinations() was called
+    set(_${PROJECT_NAME}_ALPINE_DESTINATIONS TRUE)
+
+    # set project specific install destinations
+    set(ALPINE_PROJECT_BIN_DESTINATION ${ALPINE_GLOBAL_LIBEXEC_DESTINATION}/${PROJECT_NAME})
+    set(ALPINE_PROJECT_ETC_DESTINATION ${ALPINE_GLOBAL_ETC_DESTINATION}/${PROJECT_NAME})
+    set(ALPINE_PROJECT_INCLUDE_DESTINATION ${ALPINE_GLOBAL_INCLUDE_DESTINATION}/${PROJECT_NAME})
+    set(ALPINE_PROJECT_LIB_DESTINATION ${ALPINE_GLOBAL_LIB_DESTINATION})
+    set(ALPINE_PROJECT_PYTHON_DESTINATION ${ALPINE_GLOBAL_PYTHON_DESTINATION}/${PROJECT_NAME})
+    set(ALPINE_PROJECT_SHARE_DESTINATION ${ALPINE_GLOBAL_SHARE_DESTINATION}/${PROJECT_NAME})
+
+    # set project specific output directory for libraries
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${ALPINE_DEVEL_PREFIX}/${ALPINE_PROJECT_LIB_DESTINATION})
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${ALPINE_DEVEL_PREFIX}/${ALPINE_PROJECT_LIB_DESTINATION})
+    # set project specific output directory for binaries
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ALPINE_DEVEL_PREFIX}/${ALPINE_PROJECT_BIN_DESTINATION})
+  endif()
+endmacro()

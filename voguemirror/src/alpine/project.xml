@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<project>
+    <name>alpine</name>
+    <version>1.0.0</version>
+    <description>Low level build system macros and infrastructure for projects.</description>
+    <maintainer email="pragyan@voguemirror.com">Pragyan</maintainer>
+    <license>VogueMirror Proprietary</license>
+
+    <url type="website">https://github.com/pntripathi9417/voguemirror/wiki/alpine</url>
+    <url type="repository">https://github.com/pntripathi9417/voguemirror/tree/master/src/core/src/alpine</url>
+
+    <author>Pragyan</author>
+
+    <buildtooldep>cmake</buildtooldep>
+
+    <builddep>gtest</builddep>
+    <builddep>python-argparse</builddep>
+    <builddep>python-alpine-pkg</builddep>
+    <builddep>python-empy</builddep>
+    <builddep>python-nose</builddep>
+
+    <rundep>cmake</rundep>
+    <rundep>gtest</rundep>
+    <rundep>python-argparse</rundep>
+    <rundep>python-alpine-pkg</rundep>
+    <rundep>python-empy</rundep>
+    <rundep>python-nose</rundep>
+</project>

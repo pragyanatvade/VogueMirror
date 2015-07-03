@@ -1,0 +1,4 @@
+REM generated from alpine/cmake/env-hooks/05.alpine-test-results.bat.develspace.in
+
+set ALPINE_TEST_RESULTS_DIR="@ALPINE_TEST_RESULTS_DIR@"
+set ROS_TEST_RESULTS_DIR=%ALPINE_TEST_RESULTS_DIR%

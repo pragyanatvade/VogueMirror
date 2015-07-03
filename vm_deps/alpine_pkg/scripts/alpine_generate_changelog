@@ -1,0 +1,123 @@
+#!/usr/bin/env python
+
+"""This script generates CHANGELOG.rst files for git repositories"""
+
+from __future__ import print_function
+
+import argparse
+import logging
+import os
+import sys
+
+from alpine_pkg.changelog import CHANGELOG_FILENAME
+from alpine_pkg.changelog_generator import generate_changelog_file, generate_changelogs, get_all_changes, get_forthcoming_changes, update_changelogs
+from alpine_pkg.changelog_generator_vcs import get_vcs_client
+from alpine_pkg.projects import find_projects
+
+
+def prompt_continue(msg, default):
+    """Prompt the user for continuation."""
+    if default:
+        msg += ' [Y/n]?'
+    else:
+        msg += ' [y/N]?'
+
+    while True:
+        response = raw_input(msg)
+        if not response:
+            response = 'y' if default else 'n'
+        else:
+            response = response.lower()
+
+        if response in ['y', 'n']:
+            return response == 'y'
+
+        print("Response '%s' was not recognized, please use one of the following options: y, Y, n, N" % response, file=sys.stderr)
+
+
+def main(sysargs=None):
+    parser = argparse.ArgumentParser(description='Generate a %s' % CHANGELOG_FILENAME)
+    parser.add_argument('-a', '--all', action='store_true', default=False,
+        help='Generate changelog for all versions instead of only the forthcoming one (only supported when no changelog file exists yet)')
+    parser.add_argument('--print-root', action='store_true', default=False,
+        help='Output changelog content to the console as if there would be only one project in the root of the repository')
+    parser.add_argument('--skip-contributors', action='store_true', default=False,
+        help='Skip adding the list of contributors to the changelog')
+    parser.add_argument('-y', '--non-interactive', action='store_true', default=False,
+        help="Run without user interaction, confirming all questions with 'yes'")
+    args = parser.parse_args(sysargs)
+
+    base_path = '.'
+    logging.basicConfig(format='%(message)s', level=logging.DEBUG)
+
+    vcs_client = get_vcs_client(base_path)
+
+    if args.print_root:
+        # printing status messages to stderr to allow piping the changelog to a file
+        if args.all:
+            print('Querying all tags and commit information...', file=sys.stderr)
+            tag2log_entries = get_all_changes(vcs_client)
+            print('Generating changelog output with all versions...', file=sys.stderr)
+        else:
+            print('Querying commit information since latest tag...', file=sys.stderr)
+            tag2log_entries = get_forthcoming_changes(vcs_client)
+            print('Generating changelog files with forthcoming version...', file=sys.stderr)
+        print('', file=sys.stderr)
+        data = generate_changelog_file('repository-level', tag2log_entries, vcs_client=vcs_client)
+        print(data)
+        return 0
+
+    # find projects
+    projects = find_projects(base_path)
+    if not projects:
+        raise RuntimeError('No projects found')
+    print('Found projects: %s' % ', '.join(sorted([p.name for p in projects.values()])))
+
+    # check for missing changelogs
+    missing_changelogs = []
+    for pkg_path, project in projects.items():
+        changelog_path = os.path.join(base_path, pkg_path, CHANGELOG_FILENAME)
+        if not os.path.exists(changelog_path):
+            missing_changelogs.append(project.name)
+
+    if args.all and not missing_changelogs:
+        raise RuntimeError('All projects already have a changelog. Either remove (some of) them before using --all or invoke the script without --all.')
+
+    if args.all and len(missing_changelogs) != len(projects):
+        ignored = set([p.name for p in projects.values()]) - set(missing_changelogs)
+        print('The following projects already have a changelog file and will be ignored: %s' % ', '.join(sorted(ignored)), file=sys.stderr)
+
+    # prompt to switch to --all
+    if not args.all and missing_changelogs:
+        print('Some of the projects have no changelog file: %s' % ', '.join(sorted(missing_changelogs)))
+        print('You might consider to use --all to generate the changelogs for all versions (not only for the forthcoming version).')
+        if not args.non_interactive and not prompt_continue('Continue without --all option', default=False):
+            raise RuntimeError('Skipping generation, rerun the script with --all.')
+
+    if args.all:
+        print('Querying all tags and commit information...')
+        tag2log_entries = get_all_changes(vcs_client)
+        print('Generating changelog files with all versions...')
+        generate_changelogs(base_path, projects, tag2log_entries, logger=logging, vcs_client=vcs_client, skip_contributors=args.skip_contributors)
+    else:
+        print('Querying commit information since latest tag...')
+        tag2log_entries = get_forthcoming_changes(vcs_client)
+        # separate projects with/without a changelog file
+        projects_without = {pkg_path: project for pkg_path, project in projects.items() if project.name in missing_changelogs}
+        if projects_without:
+            print('Generating changelog files with forthcoming version...')
+            generate_changelogs(base_path, projects_without, tag2log_entries, logger=logging, vcs_client=vcs_client, skip_contributors=args.skip_contributors)
+        projects_with = {pkg_path: project for pkg_path, project in projects.items() if project.name not in missing_changelogs}
+        if projects_with:
+            print('Updating forthcoming section of changelog files...')
+            update_changelogs(base_path, projects_with, tag2log_entries, logger=logging, vcs_client=vcs_client, skip_contributors=args.skip_contributors)
+    print('Done.')
+    print('Please review the extracted commit messages and consolidate the changelog entries before committing the files!')
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except RuntimeError as e:
+        print(e, file=sys.stderr)
+        sys.exit(1)

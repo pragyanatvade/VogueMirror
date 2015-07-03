@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<project>
+  <name>no_buildtooldep_alpine</name>
+  <version>0.1.0</version>
+  <description>no_buildtooldep_alpine</description>
+
+  <maintainer email="user@todo.todo">user</maintainer>
+  <license>BSD</license>
+
+  <rundep>foo</rundep>
+  <rundep>bar</rundep>
+  <rundep>baz</rundep>
+
+  <export>
+    <metaproject/>
+  </export>
+
+</project>

@@ -1,0 +1,4 @@
+# generated from alpine/cmake/env-hooks/05.alpine-test-results.sh.develspace.in
+
+export ALPINE_TEST_RESULTS_DIR="@ALPINE_TEST_RESULTS_DIR@"
+export ROS_TEST_RESULTS_DIR="$ALPINE_TEST_RESULTS_DIR"

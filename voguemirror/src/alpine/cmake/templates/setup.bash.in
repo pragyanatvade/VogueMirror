@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# generated from alpine/cmake/templates/setup.bash.in
+
+ALPINE_SHELL=bash
+
+# source setup.sh from same directory as this file
+_ALPINE_SETUP_DIR=$(builtin cd "`dirname "${BASH_SOURCE[0]}"`" && pwd)
+. "$_ALPINE_SETUP_DIR/setup.sh"

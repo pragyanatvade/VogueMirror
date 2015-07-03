@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<project>
+  <name>invalid_depends</name>
+  <version>0.1.0</version>
+  <description>invalid_depends</description>
+
+  <maintainer email="user@todo.todo">user</maintainer>
+  <license>BSD</license>
+  <buildtooldep>alpine</buildtooldep>
+
+  <rundep>foo</rundep>
+  <rundep>bar</rundep>
+  <rundep>baz</rundep>
+
+  <builddep>ping</builddep>
+
+  <export>
+    <metaproject/>
+  </export>
+
+</project>

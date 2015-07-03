@@ -1,0 +1,102 @@
+cmake_minimum_required(VERSION 2.8.7)
+project(@name)
+
+## Find alpine macros and libraries
+## if COMPONENTS list like find_package(alpine REQUIRED COMPONENTS xyz)
+## is used, also find other alpine projects
+find_package(alpine REQUIRED@components)
+
+## System dependencies are found with CMake's conventions
+# find_package(Boost REQUIRED COMPONENTS system)
+@boost_find@systems_find
+
+## Uncomment this if the project has a setup.py. This macro ensures
+## modules and global scripts declared therein get installed
+# alpine_python_setup()
+
+###################################
+## alpine specific configuration ##
+###################################
+## The alpine_project macro generates cmake config files for your project
+## Declare things to be passed to dependent projects
+## INCLUDE_DIRS: uncomment this if you project contains header files
+## LIBRARIES: libraries you create in this project that dependent projects also need
+## ALPINE_DEPENDS: alpine_projects dependent projects also need
+## DEPENDS: system dependencies of this project that dependent projects also need
+alpine_project(
+#  INCLUDE_DIRS include
+#  LIBRARIES @{name}
+#  ALPINE_DEPENDS @alpine_depends
+#  DEPENDS @system_depends
+)
+
+###########
+## Build ##
+###########
+
+## Specify additional locations of header files
+## Your project locations should be listed before other locations
+@include_directories
+
+## Declare a cpp library
+# add_library(@{name}
+#   src/${PROJECT_NAME}/@name.cpp
+# )
+
+## Declare a cpp executable
+# add_executable(@{name}_node src/@{name}_node.cpp)
+
+## Add cmake target dependencies of the executable/library
+## as an example, message headers may need to be generated before nodes
+# add_dependencies(@{name}_node @{name}_generate_messages_cpp)
+
+## Specify libraries to link a library or executable target against
+# target_link_libraries(@{name}_node
+@target_libraries# )
+
+#############
+## Install ##
+#############
+
+# all install targets should use alpine DESTINATION variables
+
+## Mark executable scripts (Python etc.) for installation
+## in contrast to setup.py, you can choose the destination
+# install(PROGRAMS
+#   scripts/my_python_script
+#   DESTINATION ${ALPINE_PROJECT_BIN_DESTINATION}
+# )
+
+## Mark executables and/or libraries for installation
+# install(TARGETS @{name} @{name}_node
+#   ARCHIVE DESTINATION ${ALPINE_PROJECT_LIB_DESTINATION}
+#   LIBRARY DESTINATION ${ALPINE_PROJECT_LIB_DESTINATION}
+#   RUNTIME DESTINATION ${ALPINE_PROJECT_BIN_DESTINATION}
+# )
+
+## Mark cpp header files for installation
+# install(DIRECTORY include/${PROJECT_NAME}/
+#   DESTINATION ${ALPINE_PROJECT_INCLUDE_DESTINATION}
+#   FILES_MATCHING PATTERN "*.h"
+#   PATTERN ".svn" EXCLUDE
+# )
+
+## Mark other files for installation (e.g. launch and bag files, etc.)
+# install(FILES
+#   # myfile1
+#   # myfile2
+#   DESTINATION ${ALPINE_PROJECT_SHARE_DESTINATION}
+# )
+
+#############
+## Testing ##
+#############
+
+## Add gtest based cpp test target and link libraries
+# alpine_add_gtest(${PROJECT_NAME}-test test/test_@name.cpp)
+# if(TARGET ${PROJECT_NAME}-test)
+#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
+# endif()
+
+## Add folders to be run by python nosetests
+# alpine_add_nosetests(test)

@@ -1,0 +1,5 @@
+# generated from alpine/cmake/template/order_projects.context.py.in
+source_root_dir = "@CMAKE_CURRENT_SOURCE_DIR@"
+whitelisted_packages = "@ALPINE_WHITELIST_PROJECTS@".split(';') if "@ALPINE_WHITELIST_PROJECTS@" != "" else []
+blacklisted_packages = "@ALPINE_BLACKLIST_PROJECTS@".split(';') if "@ALPINE_BLACKLIST_PROJECTS@" != "" else []
+underlay_workspaces = "@ALPINE_WORKSPACES@".split(';') if "@ALPINE_WORKSPACES@" != "" else []

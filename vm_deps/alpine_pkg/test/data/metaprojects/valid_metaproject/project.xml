@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<project>
+  <name>valid_metaproject</name>
+  <version>0.1.0</version>
+  <description>valid_metaproject</description>
+
+  <maintainer email="user@todo.todo">user</maintainer>
+  <license>BSD</license>
+  <buildtooldep>alpine</buildtooldep>
+
+  <rundep>foo</rundep>
+  <rundep>bar</rundep>
+  <rundep>baz</rundep>
+
+  <export>
+    <metaproject/>
+  </export>
+
+</project>

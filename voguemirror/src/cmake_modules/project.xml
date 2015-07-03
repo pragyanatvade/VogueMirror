@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<project>
+    <name>cmake_modules</name>
+    <version>1.0.0</version>
+    <description>A common collection of CMake modules which are commonly used to alpine projects</description>
+    
+    <maintainer email="pragyan@voguemirror.com">Pragyan</maintainer>
+
+    <license>VogueMirror Proprietary</license>
+
+    <url type="website">https://github.com/pntripathi9417/voguemirror/wiki/cmake_modules</url>
+
+    <author email="pragyan@voguemirror.com">Pragyan</author>
+
+    <buildtooldep>alpine</buildtooldep>
+
+</project>
